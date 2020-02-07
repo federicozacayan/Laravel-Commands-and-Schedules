@@ -1,0 +1,99 @@
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Laravel Commands and Schedules">
+  <title>Laravel Commands and Schedules</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <link href="https://federicozacayan.github.io/tutorial/css/prism.css" rel="stylesheet">
+<style>
+p {
+    margin: 0;
+}
+</style>
+<style>textarea {
+  width: 100%;
+  margin: .5rem auto; }
+
+.buttons button {
+  cursor: pointer;
+  background-color: #00b7ff;
+  padding: .5rem;
+  margin: .5rem;
+  border-radius: 1rem;
+  color: white;
+  text-transform: capitalize;
+  display: inline-block;
+  width: auto; }
+
+button {
+  width: 50%; }
+
+.styler {
+  position: fixed;
+  top: 0;
+  right: 0;
+  padding: 1rem; }
+  .styler .background {
+    position: fixed;
+    background-color: #000;
+    opacity: .5;
+    height: 200px;
+    top: 0;
+    margin-left: -1rem;
+    float: left;
+    width: 100%;
+    z-index: -1;
+    height: 100vh; }
+</style></head>
+
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root"><div class="container"><div><div><h1>Laravel Commands and Schedules</h1><pre class="  language-html"><code class="  language-html">php artisan make:command DeleteOldMessages</code></pre><p>app/Console/Commands/DeleteOldMessages.php</p><pre class="  language-javascript"><code class="  language-javascript"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace App\Console\Commands<span class="token punctuation">;</span>
+use Illuminate\Console\Command<span class="token punctuation">;</span>
+<span class="token operator">...</span>
+<span class="token keyword">class</span> <span class="token class-name">DeleteOldMessages</span> <span class="token keyword">extends</span> <span class="token class-name">Command</span>
+<span class="token punctuation">{</span>
+    <span class="token keyword">protected</span> $signature <span class="token operator">=</span> <span class="token string">'command:deleteOldMessages'</span><span class="token punctuation">;</span>
+    <span class="token keyword">protected</span> $description <span class="token operator">=</span> <span class="token string">'Delete messages older than 10 minutes'</span><span class="token punctuation">;</span>
+    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function">__construct</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        parent<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">__construct</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">public</span> <span class="token keyword">function</span> <span class="token function">handle</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        $messaeges <span class="token operator">=</span> Messages<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">where</span><span class="token punctuation">(</span>
+            <span class="token string">'created_at'</span><span class="token punctuation">,</span> <span class="token string">'&lt;'</span><span class="token punctuation">,</span> Carbon<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">now</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">sumMinutes</span><span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">)</span>
+        <span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token keyword">delete</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        echo <span class="token string">"Deleted messages\n"</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre><p>You can tested writing in the console.</p><pre class="  language-html"><code class="  language-html">php artisan command:deleteOldMessages</code></pre><p>app/Console/Kernel.php file.</p><pre class="  language-javascript"><code class="  language-javascript"><span class="token operator">&lt;</span><span class="token operator">?</span>php
+namespace App\Console<span class="token punctuation">;</span>
+use Illuminate\Console\Scheduling\Schedule<span class="token punctuation">;</span>
+use Illuminate\Foundation\Console\Kernel <span class="token keyword">as</span> ConsoleKernel<span class="token punctuation">;</span>
+<span class="token keyword">class</span> <span class="token class-name">Kernel</span> <span class="token keyword">extends</span> <span class="token class-name">ConsoleKernel</span>
+<span class="token punctuation">{</span>
+    <span class="token keyword">protected</span> $commands <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">protected</span> <span class="token keyword">function</span> <span class="token function">schedule</span><span class="token punctuation">(</span><span class="token parameter">Schedule $schedule</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        $schedule<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">command</span><span class="token punctuation">(</span><span class="token string">'command:deleteOldMessages'</span><span class="token punctuation">)</span> <span class="token comment">//Check it out</span>
+                 <span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">everyMinute</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">protected</span> <span class="token keyword">function</span> <span class="token function">commands</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        $<span class="token keyword">this</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">load</span><span class="token punctuation">(</span>__DIR__<span class="token punctuation">.</span><span class="token string">'/Commands'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        require <span class="token function">base_path</span><span class="token punctuation">(</span><span class="token string">'routes/console.php'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre><p>Then run the following comand.</p><pre class="  language-html"><code class="  language-html">php artisan schedule:run</code></pre><p>In this way we start a process that every minute delete older messages.</p></div><div class="styler" style="display: none;"><div class="background"></div><textarea style="margin-top: 8px; margin-bottom: 8px; height: 449px;">Laravel Commands and Schedules</textarea><br><button>Duplicate</button><button>Delete</button><br><div class="buttons"><button>h1 </button><button>h2 </button><button>p </button><button>html </button><button>css </button><button>javascript </button><button>php </button></div><label for="up" class="btn btn-primary btn-block btn-outlined">Upload Json</label><input id="up" type="file" accept="text/plain" style="display: none;"><label for="down" class="btn btn-primary btn-block btn-outlined">Download Json</label><button id="down" style="display: none;">Export</button><label for="html" class="btn btn-primary btn-block btn-outlined">Download HTML</label><button id="html" style="display: none;">Export</button></div></div></div></div>
+<script src="/static/js/bundle.js"></script><script src="/static/js/0.chunk.js"></script><script src="/static/js/main.chunk.js"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+  <script src="https://federicozacayan.github.io/tutorial/js/prism.js"></script>
+
+
+
+</body></html>
